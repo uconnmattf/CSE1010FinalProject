@@ -1,4 +1,9 @@
 #clears terminal
+from tkinter import *
+
+window = Tk()
+window.mainloop()
+
 print("\x1b[H\x1b[2J", end="")
 
 print("Hey there, this is BudgetBuddy! Your personal Budgeting Assistant.")
