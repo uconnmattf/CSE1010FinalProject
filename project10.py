@@ -1,11 +1,9 @@
 
-
-import tkinter as tk
+from tkinter import *
 from library import functions
 from library.classes_10 import Budget
 
-def main():
-    name = input("Enter your name: ")
+def main(name):
 
     print(f"Hey {name}, this is BudgetBuddy! Your personal Budgeting Assistant.")
 

@@ -1,20 +1,30 @@
 from tkinter import *
 import project10
+import selectionmenu
 
-def click():
-    project10.main()
+#IMPORT PILLOW BEFORE RUNNING CUZ TKINTER IS ASS AND CANT READ SOME IMAGES
+#DO pip install Pillow OR NOTHING WILL WORK PROBABLY IDK
 
 
-window = Tk()
+print(f"using this file{project10.__file__}")
 
-window.geometry("420x420")
-window.title("Budget Buddy")
+
+def submit():
+    #project10.main(name_box.get())
+    selectionmenu.main()
+    main_menu.withdraw()
+    
+main_menu = Tk()
+
+
+main_menu.geometry("420x420")
+main_menu.title("Budget Buddy")
 
 title_photo = PhotoImage(file="Images\Budget_Icon.png")
 smaller_title_photo = title_photo.subsample(2, 2) #reduces size of the image
-window.iconphoto(True, title_photo)
+main_menu.iconphoto(True, title_photo)
 
-title = Label(window, 
+title = Label(main_menu, 
               text="Budget Buddy", 
               font=("Arial",40,"bold"), 
               fg="#ADD8E6",
@@ -22,13 +32,24 @@ title = Label(window,
               bd=10,
               padx=20,
               pady=20, 
-              image = smaller_title_photo,
+              #image = smaller_title_photo,
               compound="top")
 title.pack()
 
-start_button = Button(window,
-                      text="Start",
-                      command=click)
-start_button.pack()
+name_label = Label(main_menu,
+                   text="Enter your name.",
+                   font=("Arial",20,"bold"))
+name_label.pack()
 
-window.mainloop()
+
+name_box = Entry(main_menu)
+name_box.pack()
+
+submit_button = Button(main_menu,
+                       text="Submit",
+                       command=submit)
+submit_button.pack()
+
+
+
+main_menu.mainloop()
