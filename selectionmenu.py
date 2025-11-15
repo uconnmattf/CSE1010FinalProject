@@ -28,7 +28,10 @@ def main():
     adding_expenses.pack()
 
     temp_label = Label(selection_menu,
-                       image=selection_menu.temp_image2)
+                       text="bottom text",
+                       font=("Arial", 20, "bold"),
+                       image=selection_menu.temp_image2,
+                       compound="bottom")
     temp_label.pack()
 
 if __name__ == "__main__":
