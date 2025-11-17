@@ -73,13 +73,54 @@ class Budget():
     
     
     def write_to_file(self):
-        with open("expenses.txt", "a") as file:  
-            file.write(f"{self.expenses_type}\n")
-            
-            for type, expense in self.expenses_dict.items():
-                file.write(f"{type}: ${expense}\n")
+    #Reads existing data from the file if it exist
+        existing_data = {}
 
-            file.write("\n")  
+        try:
+            with open("expenses.txt", "r") as file:
+                lines = [line.strip() for line in file]
+
+            current_category = None
+            for line in lines:
+                if not line:
+                    continue
+
+                # Detect category headers
+                if ":" not in line and not line.startswith("$"):
+                    current_category = line
+                    if current_category not in existing_data:
+                        existing_data[current_category] = {}
+                else:
+                    # Parse "type: $value"
+                    item, value = line.split(":")
+                    value = float(value.strip().replace("$", ""))
+
+                    if item not in existing_data[current_category]:
+                        existing_data[current_category][item] = 0
+
+                    existing_data[current_category][item] += value
+
+        except FileNotFoundError:
+            # If file doesn't exist start with new file
+            pass
+
+        #Merges the current object's data into existing_data
+        if self.expenses_type not in existing_data:
+            existing_data[self.expenses_type] = {}
+
+        for item, value in self.expenses_dict.items():
+            if item not in existing_data[self.expenses_type]:
+                existing_data[self.expenses_type][item] = 0
+
+            existing_data[self.expenses_type][item] += value
+
+        #Rewrites the file with all updated data
+        with open("expenses.txt", "w") as file:
+            for category, items in existing_data.items():
+                file.write(f"{category}\n")
+                for item, value in items.items():
+                    file.write(f"{item}: ${value}\n")
+                file.write("\n")
 
     def calc_total_balance(*budgets):
         
