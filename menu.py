@@ -11,15 +11,54 @@ print(f"using this file{project10.__file__}")
 
 def submit_name():
     #project10.main(name_box.get()) <--- Runs the main code from project10.py/commented out for testing speed reasons
-    
-    
     adding_expenses = Label(menu,
-                            text=f"{name_box.get()}",
+                            text=f"Hello {name_box.get()}, this is BudgetBuddy! Your personal Budgeting Assistant.",
                             font=("Arial", 20, "bold"),
-                            image=menu.temp_image2,
-                            compound="bottom")
+                            fg="#ADD8E6",
+                            relief=RAISED,
+                            bd=10,
+                            padx=20,
+                            pady=20, 
+                            compound="top")
     adding_expenses.pack()
     
+    text_label1 = Label(menu,
+                        text="What would you like to do?",
+                        font=("Arial", 20, "bold"),
+                        )
+    text_label1.pack()
+
+    new_expense_category = Button(menu,
+                         text="Create a new expense category",
+                         width=25,
+                         height=5)
+    new_expense_category.pack()
+
+    add_expenses = Button(menu,
+                         text="Add expenses into a category",
+                         width=25,
+                         height=5)
+    add_expenses.pack()
+
+    display_expenses = Button(menu,
+                              text="Display expenses",
+                              width=25,
+                              height=5)
+    display_expenses.pack()
+
+    financial_status = Button(menu,
+                              text="View financial status",
+                              width=25,
+                              height=5)
+    financial_status.pack()
+
+    save_expense = Button(menu,
+                              text="View financial status",
+                              width=25,
+                              height=5)
+    save_expense.pack()
+
+
     #hides all the labels that were orginally present so we don't need to make new windows repeatdly
     title.pack_forget()
     name_label.pack_forget()
@@ -31,7 +70,7 @@ def submit_name():
 menu = Tk()
 
 
-menu.geometry("420x420")
+menu.geometry("1024x768")
 menu.title("Budget Buddy")
 
 img1 = Image.open("Images/jtempimage2.png").resize((200, 200))
@@ -53,7 +92,6 @@ title = Label(menu,
               bd=10,
               padx=20,
               pady=20, 
-              #image = smaller_title_photo,
               compound="top")
 title.pack()
 
@@ -70,6 +108,9 @@ submit_button = Button(menu,
                        text="Submit",
                        command=submit_name)
 submit_button.pack()
+
+#Gui Elements after the name input screen
+
 
 
 

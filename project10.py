@@ -7,6 +7,8 @@ def main(name):
 
     print(f"Hey {name}, this is BudgetBuddy! Your personal Budgeting Assistant.")
 
+    instances = {}
+
     grocery = Budget("Grocery")
     Toyota_Camry = Budget("Car")
 

@@ -78,14 +78,14 @@ class Budget():
 
         try:
             with open("expenses.txt", "r") as file:
-                lines = [line.strip() for line in file]
-
+                lines = [line.strip() for line in file] #goes through each lines and adds it to a list
+                                                        #
             current_category = None
-            for line in lines:
-                if not line:
+            for line in lines: 
+                if not line: #checks if the line is empty
                     continue
 
-                # Detect category headers
+                # Detect category name
                 if ":" not in line and not line.startswith("$"):
                     current_category = line
                     if current_category not in existing_data:
