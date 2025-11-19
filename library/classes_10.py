@@ -7,30 +7,13 @@ class Budget():
         self.category = []
         self.expenses_dict = {}
 
-    def add_expenses(self):
+    def add_expenses(self, type, expense):
+    
+        self.category.append(type)
+        self.expenses.append(float(expense))
+        self.expenses_dict[type] = float(expense)
         
-        print()
-
-        while True:
-            try:
-                expenselist = int(input(f"How many expenses do you want to specify for {self.expenses_type}: "))
-                break
-            except Exception:
-                print("Please input an integer number.")
-            
-        for i in range(expenselist):
-            while True:
-                try:
-                    type, expense = input(f"Enter expense {i+1} in type cost format(e.g milk 12): ").split()
-                    self.category.append(type)
-                    self.expenses.append(float(expense))
-                    self.expenses_dict[type] = float(expense)
-                    break
-                except Exception:
-                    print("Please input expense in type cost format(e.g milk 12).")
-        
-        self.write_to_file()
-        
+        #self.write_to_file()
         return self.expenses
 
     def get_expenses(self):
@@ -122,28 +105,15 @@ class Budget():
                     file.write(f"{item}: ${value}\n")
                 file.write("\n")
 
-    def calc_total_balance(*budgets):
-        
-        print()
+    def calc_total_balance(income):
+        import project10  # so we can access budget_category
 
-        while True:
-            try:
-                income = float(input("Enter your total income: "))
-                break
-            except Exception:
-                print("Invalid input")
+        total_expenses = 0
 
-        total_expenses = sum(sum(current_budget.expenses) for current_budget in budgets)
-        balance = income - total_expenses
+        for budget in project10.budget_category.values():
+            total_expenses += sum(budget.expenses_dict.values())
 
-        print(f"\nYour total balance after all expenses is: ${balance:.2f}")
-
-        if balance > 0:
-            print("Great! You are saving money!")
-        elif balance == 0:
-            print("You are breaking even.")
-        else:
-            print("**WARNING** You are overspending!")
+        return income - total_expenses
 
     
 

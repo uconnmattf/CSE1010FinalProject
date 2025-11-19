@@ -1,13 +1,14 @@
 Grocery
-milk: $24.0
-bread: $5.0
-butter: $3.0
-hot_chocalate: $7.0
-muffin: $5.49
-noodles: $3.12
+milk: $12.0
+bread: $20.0
 
 Car
-oil: $60.0
-car_wash: $25.0
-tire_rotatation: $150.0
+oil: $35.0
+car wash: $40.0
+
+Utility
+light: $35.0
+
+Games
+Pokemon: $70.0
 
