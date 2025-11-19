@@ -13,7 +13,6 @@ class Budget():
         self.expenses.append(float(expense))
         self.expenses_dict[type] = float(expense)
         
-        #self.write_to_file()
         return self.expenses
 
     def get_expenses(self):
