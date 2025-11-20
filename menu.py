@@ -87,20 +87,20 @@ class BudgetBuddyApp:
                                  bd=10, 
                                  padx=20, 
                                  pady=20)
-        self.title_label.pack()
+        self.title_label.pack(pady=5)
 
         self.name_label = Label(self.menu, 
                                 text="Enter your name.", 
                                 font=("Arial",20,"bold"))
-        self.name_label.pack()
+        self.name_label.pack(pady=5)
 
         self.name_box = Entry(self.menu)
-        self.name_box.pack()
+        self.name_box.pack(pady=1)
 
         self.submit_button = Button(self.menu, 
                                     text="Submit", 
                                     command=self.submit_name)
-        self.submit_button.pack()
+        self.submit_button.pack(pady=5)
 
         self.current_widgets = [self.title_label, self.name_label, self.name_box, self.submit_button]
 
@@ -130,7 +130,7 @@ class BudgetBuddyApp:
                                        command=self.show_new_category_screen)
         
         self.btn_add_expenses = Button(self.menu, 
-                                       text="Add expenses into a category", 
+                                       text="Add expenses", 
                                        width=25, 
                                        height=3,
                                        command=self.select_add_expenses_screen)
@@ -147,13 +147,11 @@ class BudgetBuddyApp:
                                            height=3,
                                            command=self.collect_financial_status)
 
-        for btn in [self.btn_new_category, self.btn_add_expenses, self.btn_display_expenses, 
-                    self.btn_financial_status]:
+        for btn in [self.btn_new_category, self.btn_add_expenses]:
             btn.pack(pady=5)
 
         self.current_widgets = [self.greeting, self.prompt, self.btn_new_category, 
-                                self.btn_add_expenses, self.btn_display_expenses, 
-                                self.btn_financial_status]
+                                self.btn_add_expenses]
 
     # New category screen
     def show_new_category_screen(self):
@@ -166,14 +164,14 @@ class BudgetBuddyApp:
 
         self.entry_new_category = Entry(self.menu, 
                                         width=25)
-        self.entry_new_category.pack()
+        self.entry_new_category.pack(pady=5)
 
         self.confirm_btn = Button(self.menu, 
                                   text="Confirm", 
                                   width=20, 
                                   height=3, 
                                   command=self.confirm_new_category)
-        self.confirm_btn.pack()
+        self.confirm_btn.pack(pady=5)
 
         self.current_widgets = [self.label_new_category, self.entry_new_category, self.confirm_btn]
 
@@ -198,6 +196,12 @@ class BudgetBuddyApp:
                                       height=3,
                                       command=self.show_new_category_screen)
 
+        self.btn_go_to_add_expense = Button(menu,
+                                            text="Add Expenses to Category?",
+                                            width=25,
+                                            height=3,
+                                            command=self.select_add_expenses_screen)
+        
         self.btn_return_menu = Button(self.menu, 
                                       text="Return to Menu", 
                                       width=25, 
@@ -205,9 +209,10 @@ class BudgetBuddyApp:
                                       command=self.show_main_menu)
 
         self.btn_add_another.pack(pady=5)
+        self.btn_go_to_add_expense.pack(pady=5)
         self.btn_return_menu.pack(pady=5)
 
-        self.current_widgets = [self.confirmation_label, self.btn_add_another, self.btn_return_menu]
+        self.current_widgets = [self.confirmation_label, self.btn_add_another, self.btn_return_menu, self.btn_go_to_add_expense]
 
     #Adding expenses screen
     def select_add_expenses_screen(self):
@@ -227,7 +232,15 @@ class BudgetBuddyApp:
                          height=3,
                          command=lambda b=budget_instance: self.get_num_expense_screen(b))
             self.current_widgets.append(btn)
-            btn.pack()
+            btn.pack(pady=5)
+
+        back_btn = Button(self.menu, 
+                          text="Back to Menu", 
+                          width=25, 
+                          height=3, 
+                          command=self.show_main_menu)
+        back_btn.pack(pady=75)
+        self.current_widgets.append(back_btn)   
 
     def get_num_expense_screen(self, budget_instance):
         self.clear_screen()
@@ -255,7 +268,18 @@ class BudgetBuddyApp:
 
         self.expense_entries = []
 
-        self.expensenum = int(self.get_expense_num.get())        
+        try:
+            self.expensenum = int(self.get_expense_num.get())
+        except Exception:
+            self.clear_screen()
+            self.get_num_expense_screen(self.selected_budget)
+            self.error_label1 = Label(menu,
+                                      text="**ERROR**\nPlease input a whole number",
+                                      font=("Arial",25,"bold"),
+                                      fg="#FF0000")
+            self.error_label1.pack(pady=5)
+            self.current_widgets.append(self.error_label1)     
+            return
 
         for i in range(self.expensenum):
             type_label = Label(menu,
