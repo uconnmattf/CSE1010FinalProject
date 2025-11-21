@@ -224,7 +224,7 @@ class BudgetBuddyApp:
                                       command=self.show_main_menu)
         self.btn_return_menu.pack(pady=5)
 
-        self.current_widgets = [self.label_new_category, self.entry_new_category, self.confirm_btn]
+        self.current_widgets = [self.label_new_category, self.entry_new_category, self.confirm_btn, self.btn_return_menu]
 
     # Confirm new category
     def confirm_new_category(self):
