@@ -19,7 +19,7 @@ class BudgetBuddyApp:
         # Tracks currently displayed widgets
         self.current_widgets = []
 
-        # Store user data
+        # Stuff needed later
         self.user_name = ""
         self.new_category_name = ""
 
@@ -111,91 +111,92 @@ class BudgetBuddyApp:
 
     # Main menu screen
     def show_main_menu(self):
+
         self.clear_screen()
-        
+
+        # Try to get income
         try:
             self.income = float(self.collect_income.get())
         except Exception:
             self.collect_financial_status()
-            self.error_label2 = Label(menu,
-                                      text="**ERROR**\nOnly input numbers",
-                                      font=("Arial",20,"bold"),
-                                      fg="#FF0000")
+            self.error_label2 = Label(self.menu,
+                                    text="**ERROR**\nOnly input numbers",
+                                    font=("Arial",20,"bold"),
+                                    fg="#FF0000")
             self.error_label2.pack()
             self.current_widgets.append(self.error_label2)
             return
-        
+
         self.balance = Budget.calc_total_balance(float(self.collect_income.get()))
 
-        self.greeting = Label(self.menu, 
-                              text=f"Hello {self.user_name}, this is BudgetBuddy!", 
-                              font=("Arial",20,"bold"), 
-                              fg="#ADD8E6")
-        self.greeting.pack()
+        #Create scrollable wrapper and inner frame 
+        #Making a wrapper allows it to be cleanly removed
+        wrapper, container = self.create_scrollable_frame()
+        self.current_widgets.append(wrapper)  # wrapper needs to be tracked
 
-        self.prompt = Label(self.menu, 
+        self.greeting = Label(container, 
+                            text=f"Hello {self.user_name}, this is BudgetBuddy!", 
+                            font=("Arial",20,"bold"), 
+                            fg="#ADD8E6")
+        self.greeting.pack(pady=5)
+
+        self.prompt = Label(container, 
                             text="What would you like to do?", 
                             font=("Arial",20,"bold"))
-        self.prompt.pack()
+        self.prompt.pack(pady=5)
 
-        self.btn_new_category = Button(self.menu, text="Create a new expense category", 
-                                       width=25, 
-                                       height=3,
-                                       command=self.show_new_category_screen)
+        self.btn_new_category = Button(container, text="Create a new expense category", 
+                                    width=25, 
+                                    height=3,
+                                    command=self.show_new_category_screen)
         
-        self.btn_add_expenses = Button(self.menu, 
-                                       text="Add expenses", 
-                                       width=25, 
-                                       height=3,
-                                       command=self.select_add_expenses_screen)
+        self.btn_add_expenses = Button(container, 
+                                    text="Add expenses", 
+                                    width=25, 
+                                    height=3,
+                                    command=self.select_add_expenses_screen)
         
-        self.btn_display_expenses = Button(self.menu, 
-                                           text="Display expenses", 
-                                           width=25, 
-                                           height=3,
-                                           command=self.show_all_expenses)
+        self.btn_display_expenses = Button(container, 
+                                        text="Display expenses", 
+                                        width=25, 
+                                        height=3,
+                                        command=self.show_all_expenses)
         
-        self.btn_financial_status = Button(self.menu, 
-                                           text="View financial status", 
-                                           width=25, 
-                                           height=3,
-                                           command=self.collect_financial_status)
+        self.btn_financial_status = Button(container, 
+                                        text="View financial status", 
+                                        width=25, 
+                                        height=3,
+                                        command=self.collect_financial_status)
 
         for btn in [self.btn_new_category, self.btn_add_expenses]:
-            btn.pack(pady=5)    
+            btn.pack(pady=5)
+            self.current_widgets.append(btn)
         
-        
-        self.your_balance = Label(menu,
-                                  text=f"Your balance is ${self.balance:.2f}",
-                                  font=("Arial",40))
-        self.your_balance.pack(pady=15)
+
+        self.your_balance = Label(container,
+                                text=f"Your balance is ${self.balance:.2f}",
+                                font=("Arial",40))
+        self.your_balance.pack(pady=10)
+
 
         if self.balance > 0:
-            self.finiancial_status = Label(menu, 
-                                           text=f"Great! You are saving money!", 
-                                           font=("Arial", 20, "bold"), 
-                                           fg="#000080")
-            self.finiancial_status.pack(pady=5)
-
+            status_text = "Great! You are saving money!"
+            fg_color = "#000080"
         elif self.balance == 0:
-            self.finiancial_status = Label(menu, 
-                                           text=f"You are breaking even!", 
-                                           font=("Arial", 20, "bold"), 
-                                           fg="#808080")
-            self.finiancial_status.pack(pady=5)
-
+            status_text = "You are breaking even!"
+            fg_color = "#808080"
         else:
-            self.finiancial_status = Label(menu, 
-                                           text=f"**WARNING** You are overspending!", 
-                                           font=("Arial", 20, "bold"), 
-                                           fg="#FF0000")
-            self.finiancial_status.pack(pady=5)
+            status_text = "**WARNING** You are overspending!"
+            fg_color = "#FF0000"
 
-        
+        self.finiancial_status = Label(container, 
+                                       text=status_text, 
+                                       font=("Arial", 20, "bold"), 
+                                       fg=fg_color)
+        self.finiancial_status.pack(pady=5)
 
-        self.current_widgets = [self.greeting, self.prompt, self.btn_new_category, 
-                                self.btn_add_expenses, self.your_balance, self.finiancial_status]
 
+        self.show_all_expenses(container)
     # New category screen
     def show_new_category_screen(self):
         self.clear_screen()
@@ -215,6 +216,13 @@ class BudgetBuddyApp:
                                   height=3, 
                                   command=self.confirm_new_category)
         self.confirm_btn.pack(pady=5)
+
+        self.btn_return_menu = Button(self.menu, 
+                                      text="Return to Menu", 
+                                      width=25, 
+                                      height=3,
+                                      command=self.show_main_menu)
+        self.btn_return_menu.pack(pady=5)
 
         self.current_widgets = [self.label_new_category, self.entry_new_category, self.confirm_btn]
 
@@ -309,13 +317,13 @@ class BudgetBuddyApp:
     def record_expenses_screen(self):
         self.clear_screen()
 
+        
+        
         type_label = Label(menu,
                             text=f"Enter expenses in type cost format (e.g milk 12)",
                             font=("Arial",20))
         type_label.pack()
         
-
-
         # Create scrollable area
         wrapper, container = self.create_scrollable_frame()
         self.expense_entries = []
@@ -384,58 +392,36 @@ class BudgetBuddyApp:
 
                 file.write("\n")
 
-    def show_all_expenses(self):
-        self.clear_screen()
-
-        self.title_label = Label(self.menu, 
-                                 text="All Expenses", 
-                                 font=("Arial", 30, "bold"), 
-                                 fg="#ADD8E6")
-        self.title_label.pack(pady=10)
-
-        self.current_widgets = [self.title_label]
-
+    def show_all_expenses(self, parent_frame):
         if not project10.budget_category:
-            no_expense_label = Label(self.menu, 
-                                     text="No expenses recorded yet.", 
-                                     font=("Arial", 20))
+            no_expense_label = Label(parent_frame, 
+                                    text="No expenses recorded yet.", 
+                                    font=("Arial", 16))
             no_expense_label.pack()
-            
             self.current_widgets.append(no_expense_label)
             return
 
-        # Iterate through all categories
         for category_name, budget_instance in project10.budget_category.items():
-            category_label = Label(self.menu, 
-                                   text=f"Category: {category_name}", 
-                                   font=("Arial", 20, "bold"), 
-                                   fg="#000080")
-            category_label.pack(pady=5)
-            
+            category_label = Label(parent_frame, 
+                                text=f"Category: {category_name}", 
+                                font=("Arial", 18, "bold"), 
+                                fg="#000080")
+            category_label.pack(pady=2)
             self.current_widgets.append(category_label)
 
             if not budget_instance.expenses_dict:
-                empty_label = Label(self.menu, 
+                empty_label = Label(parent_frame, 
                                     text="No expenses yet.", 
                                     font=("Arial", 16))
                 empty_label.pack()
                 self.current_widgets.append(empty_label)
-            
             else:
                 for expense_type, cost in budget_instance.expenses_dict.items():
-                    expense_label = Label(self.menu, 
-                                          text=f"{expense_type}: ${cost}", font=("Arial", 16))
+                    expense_label = Label(parent_frame, 
+                                        text=f"{expense_type}: ${cost:.2f}", 
+                                        font=("Arial", 16))
                     expense_label.pack()
                     self.current_widgets.append(expense_label)
-
-        # Back button
-        back_btn = Button(self.menu, 
-                          text="Back to Menu", 
-                          width=25, 
-                          height=3, 
-                          command=self.show_main_menu)
-        back_btn.pack(pady=10)
-        self.current_widgets.append(back_btn)
 
     def collect_financial_status(self):
         self.clear_screen()
@@ -495,25 +481,25 @@ class BudgetBuddyApp:
         self.current_widgets = [self.finiancial_status, self.balance_display, self.back_btn]
 
     def create_scrollable_frame(self):
-    # Outer wrapper
+    # Creaters an outer wrapper so the scrollable frame can be easily deleted
         wrapper = Frame(self.menu)
         wrapper.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # Canvas for scrolling
+        # Creates the Canvas for scrolling
         canvas = Canvas(wrapper, borderwidth=0, highlightthickness=0)
         canvas.pack(side="left", fill="both", expand=True)
 
-        # Vertical scrollbar
+        # Creates Vertical scrollbar
         scrollbar = Scrollbar(wrapper, orient="vertical", command=canvas.yview)
         scrollbar.pack(side="right", fill="y")
 
-        # Inner frame
+        #creates the innerframe
         scroll_frame = Frame(canvas)
         
-        # Add the frame to the canvas
+
         canvas_window = canvas.create_window((0, 0), window=scroll_frame, anchor="n")
 
-        # Update scroll region
+        # Update scroll region each time a new button is added
         def on_frame_configure(event):
             canvas.configure(scrollregion=canvas.bbox("all"))
         scroll_frame.bind("<Configure>", on_frame_configure)
