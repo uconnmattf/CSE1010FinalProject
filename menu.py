@@ -6,7 +6,7 @@ from library.classes_10 import Budget
 class BudgetBuddyApp:
     def __init__(self, menu):
         self.menu = menu
-        self.menu.geometry("1024x768")
+        self.menu.geometry("1024x768+245+65")
         self.menu.title("Budget Buddy")
         self.load_expenses_from_file("expenses.txt")
 
@@ -107,11 +107,25 @@ class BudgetBuddyApp:
     # Handles name submission
     def submit_name(self):
         self.user_name = self.name_box.get()
-        self.show_main_menu()
+        self.collect_financial_status()
 
     # Main menu screen
     def show_main_menu(self):
         self.clear_screen()
+        
+        try:
+            self.income = float(self.collect_income.get())
+        except Exception:
+            self.collect_financial_status()
+            self.error_label2 = Label(menu,
+                                      text="**ERROR**\nOnly input numbers",
+                                      font=("Arial",20,"bold"),
+                                      fg="#FF0000")
+            self.error_label2.pack()
+            self.current_widgets.append(self.error_label2)
+            return
+        
+        self.balance = Budget.calc_total_balance(float(self.collect_income.get()))
 
         self.greeting = Label(self.menu, 
                               text=f"Hello {self.user_name}, this is BudgetBuddy!", 
@@ -148,10 +162,39 @@ class BudgetBuddyApp:
                                            command=self.collect_financial_status)
 
         for btn in [self.btn_new_category, self.btn_add_expenses]:
-            btn.pack(pady=5)
+            btn.pack(pady=5)    
+        
+        
+        self.your_balance = Label(menu,
+                                  text=f"Your balance is ${self.balance:.2f}",
+                                  font=("Arial",40))
+        self.your_balance.pack(pady=15)
+
+        if self.balance > 0:
+            self.finiancial_status = Label(menu, 
+                                           text=f"Great! You are saving money!", 
+                                           font=("Arial", 20, "bold"), 
+                                           fg="#000080")
+            self.finiancial_status.pack(pady=5)
+
+        elif self.balance == 0:
+            self.finiancial_status = Label(menu, 
+                                           text=f"You are breaking even!", 
+                                           font=("Arial", 20, "bold"), 
+                                           fg="#808080")
+            self.finiancial_status.pack(pady=5)
+
+        else:
+            self.finiancial_status = Label(menu, 
+                                           text=f"**WARNING** You are overspending!", 
+                                           font=("Arial", 20, "bold"), 
+                                           fg="#FF0000")
+            self.finiancial_status.pack(pady=5)
+
+        
 
         self.current_widgets = [self.greeting, self.prompt, self.btn_new_category, 
-                                self.btn_add_expenses]
+                                self.btn_add_expenses, self.your_balance, self.finiancial_status]
 
     # New category screen
     def show_new_category_screen(self):
@@ -252,7 +295,7 @@ class BudgetBuddyApp:
         self.expense_num_label.pack()
 
         self.get_expense_num = Entry(menu)
-        self.get_expense_num.pack()
+        self.get_expense_num.pack(pady=10)
 
         self.submit_expense_num = Button(menu,
                                          text="Submit",
@@ -266,7 +309,17 @@ class BudgetBuddyApp:
     def record_expenses_screen(self):
         self.clear_screen()
 
+        type_label = Label(menu,
+                            text=f"Enter expenses in type cost format (e.g milk 12)",
+                            font=("Arial",20))
+        type_label.pack()
+        
+
+
+        # Create scrollable area
+        wrapper, container = self.create_scrollable_frame()
         self.expense_entries = []
+        self.current_widgets = [wrapper, type_label]  
 
         try:
             self.expensenum = int(self.get_expense_num.get())
@@ -274,51 +327,50 @@ class BudgetBuddyApp:
             self.clear_screen()
             self.get_num_expense_screen(self.selected_budget)
             self.error_label1 = Label(menu,
-                                      text="**ERROR**\nPlease input a whole number",
-                                      font=("Arial",25,"bold"),
-                                      fg="#FF0000")
+                                    text="**ERROR**\nPlease input a whole number",
+                                    font=("Arial",25,"bold"),
+                                    fg="#FF0000")
             self.error_label1.pack(pady=5)
-            self.current_widgets.append(self.error_label1)     
+            self.current_widgets.append(self.error_label1)
             return
+            
+       
 
         for i in range(self.expensenum):
-            type_label = Label(menu,
-                                    text=f"Enter expense {i+1} type",
-                                    font=("Arial",20))
-            type_label.pack()
-            self.current_widgets.append(type_label)
+            
+            cost_label = Label(container,
+                            text=f"Enter expense {i+1}",
+                            font=("Arial",20))
+            cost_label.pack()
 
-            type_input = Entry(menu)
+            type_input = Entry(container)
             type_input.pack()
             self.current_widgets.append(type_input)
-
-            cost_label = Label(menu,
-                                   text="Enter the cost",
-                                   font=("Arial", 20))
-            cost_label.pack()
-            self.current_widgets.append(cost_label)
-
-            cost_input = Entry(menu)
-            cost_input.pack()
-            
-            self.current_widgets.append(cost_input)
-
-            self.expense_entries.append((type_input, cost_input))
+            self.expense_entries.append(type_input)
         
-        self.submit_expense = Button(menu,
-                                         text="Submit",
-                                         width=25,
-                                         height=3,
-                                         command=self.save_expenses)
-        self.submit_expense.pack()
-
+        self.submit_expense = Button(container,
+                                    text="Submit",
+                                    width=25,
+                                    height=3,
+                                    command=self.save_expenses)
+        self.submit_expense.pack(pady=20)
         self.current_widgets.append(self.submit_expense)
 
     def save_expenses(self):
-        for type_input, cost_input in self.expense_entries:
-            expense_type = type_input.get()
-            expense_cost = float(cost_input.get())
-            self.selected_budget.add_expenses(expense_type, expense_cost) 
+        try:
+            for type_input in self.expense_entries:
+                selected_expense = type_input.get()
+                expense_type, expense_cost = selected_expense.split()
+                self.selected_budget.add_expenses(expense_type, expense_cost) 
+        except Exception:
+            self.record_expenses_screen()
+            self.error_label3 = Label(menu,
+                                      text="**ERROR**\nPlease make sure all inputs are in type cost format",
+                                      font=("Arial",20,"bold"),
+                                      fg="#FF0000")
+            self.error_label3.pack()
+            self.current_widgets.append(self.error_label3)
+            return
         
         self.save_expenses_to_file()
         self.show_main_menu()
@@ -389,26 +441,26 @@ class BudgetBuddyApp:
         self.clear_screen()
 
         self.collect_income_label = Label(menu,
-                                          text="What is your income",
+                                          text="What is your income?",
                                           font=("Arial", 20))
         self.collect_income_label.pack()
 
         self.collect_income = Entry(menu)
-        self.collect_income.pack()
+        self.collect_income.pack(pady=5)
 
         self.submit_income = Button(menu,
                                     text="Submit",
                                     width=25,
                                     height=3,
-                                    command=self.view_financial_status)
-        self.submit_income.pack()
+                                    command=self.show_main_menu)
+        self.submit_income.pack(pady=5)
 
         self.current_widgets = [self.collect_income_label, self.collect_income, self.submit_income]
 
     def view_financial_status(self):
         self.clear_screen()
 
-        self.balance = Budget.calc_total_balance(int(self.collect_income.get()))
+        self.balance = Budget.calc_total_balance(float(self.collect_income.get()))
 
         if self.balance > 0:
             self.finiancial_status = Label(menu, 
@@ -417,11 +469,6 @@ class BudgetBuddyApp:
                                            fg="#000080")
             self.finiancial_status.pack()
 
-            self.balance = Label(menu,
-                                        text=f"Your balance is {self.balance}",
-                                        font=("Arial",15))
-            self.balance.pack()
-
         elif self.balance == 0:
             self.finiancial_status = Label(menu, 
                                            text=f"You are breaking even!", 
@@ -429,10 +476,6 @@ class BudgetBuddyApp:
                                            fg="#808080")
             self.finiancial_status.pack()
 
-            self.balance_display = Label(menu,
-                                        text=f"Your balance is {self.balance}",
-                                        font=("Arial",15))
-            self.balance_display.pack()
 
         else:
             self.finiancial_status = Label(menu, 
@@ -441,10 +484,6 @@ class BudgetBuddyApp:
                                            fg="#FF0000")
             self.finiancial_status.pack()
 
-            self.balance_display = Label(menu,
-                                        text=f"Your balance is {self.balance}",
-                                        font=("Arial",15))
-            self.balance_display.pack()
 
         self.back_btn = Button(menu,
                                text="Return to Menu",
@@ -454,6 +493,43 @@ class BudgetBuddyApp:
         self.back_btn.pack()
 
         self.current_widgets = [self.finiancial_status, self.balance_display, self.back_btn]
+
+    def create_scrollable_frame(self):
+    # Outer wrapper
+        wrapper = Frame(self.menu)
+        wrapper.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Canvas for scrolling
+        canvas = Canvas(wrapper, borderwidth=0, highlightthickness=0)
+        canvas.pack(side="left", fill="both", expand=True)
+
+        # Vertical scrollbar
+        scrollbar = Scrollbar(wrapper, orient="vertical", command=canvas.yview)
+        scrollbar.pack(side="right", fill="y")
+
+        # Inner frame
+        scroll_frame = Frame(canvas)
+        
+        # Add the frame to the canvas
+        canvas_window = canvas.create_window((0, 0), window=scroll_frame, anchor="n")
+
+        # Update scroll region
+        def on_frame_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        scroll_frame.bind("<Configure>", on_frame_configure)
+
+        # Center the scroll_frame horizontally inside the canvas
+        def center_frame(event):
+            canvas_width = event.width
+            frame_width = scroll_frame.winfo_reqwidth()
+            x = max((canvas_width - frame_width) // 2, 0)
+            canvas.coords(canvas_window, x, 0)  # update x position
+        canvas.bind("<Configure>", center_frame)
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        return wrapper, scroll_frame
+
 
 if __name__ == "__main__":
     menu = Tk()
